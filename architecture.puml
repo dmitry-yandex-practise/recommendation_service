@@ -1,0 +1,56 @@
+@startuml
+skinparam componentStyle uml2
+skinparam defaultTextAlignment center
+skinparam backgroundColor #EEEBDC
+skinparam monochrome true
+skinparam roundcorner 10
+actor User
+component web [
+WEB UI
+]
+component movie_api [
+Movie API
+Fast API
+]
+
+component recommendation_api [
+Recommendations API
+Fast API
+]
+
+database kafka [
+Хранилище событий
+(Kafka)
+]
+
+database clickhouse_ugc [
+Хранилище UGC
+(ClickHouse)
+]
+
+database recomendations_db [
+Хранилище рекомендаций
+(?pg?clickhouse)
+]
+
+component etl_kafka_clickhouse [
+Etl kafka -> ClickHouse
+Перекладываем данные из
+хранилища событий
+в аналитическое
+]
+
+component model_training [
+Анализируем данные, обучаем модели
+]
+
+User -> web
+movie_api -down-> recommendation_api
+web -> movie_api
+movie_api -> kafka
+kafka -> etl_kafka_clickhouse
+etl_kafka_clickhouse -> clickhouse_ugc
+model_training -up-> clickhouse_ugc
+model_training -left-> recomendations_db
+recommendation_api -> recomendations_db
+@enduml
