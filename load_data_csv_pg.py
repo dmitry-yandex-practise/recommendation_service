@@ -163,19 +163,18 @@ class CSVLoader:
                 self._prepare_movie('critic_name', review, self.users)
                 # print(review)
                 film_reviews = review['critic_name_ids']
-
-                if review['review_score'].find('/') != -1:
-                    score, like = parse_slash(review['review_score'])
-                
-                elif len(review['review_score']) > 0 and review['review_score'][0] in ALPHABET_SCORES_LETTERS:
-                    score, like = parse_alphabet(review['review_score'])
-
-                else:
-                    try:
-                        score, like = parse_only_score(review['review_score'])
+                try:
+                    if review['review_score'].find('/') != -1:
+                        score, like = parse_slash(review['review_score'])
                     
-                    except Exception:
-                        score, like = 0, False
+                    elif len(review['review_score']) > 0 and review['review_score'][0] in ALPHABET_SCORES_LETTERS:
+                        score, like = parse_alphabet(review['review_score'])
+
+                    else:
+                        score, like = parse_only_score(review['review_score'])
+                        
+                except Exception:
+                    score, like = 0, False
 
                 self.add_review_film_work(film_reviews, new_film_id, score, like)
                 # del self.review_raw[idx]
