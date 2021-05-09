@@ -3,6 +3,7 @@ from pprint import pprint
 from sqlite3 import Row
 import uuid
 import csv
+import sys
 import json
 from datetime import datetime
 from parse_score import parse_alphabet, parse_only_score, parse_slash, ALPHABET_SCORES_LETTERS
@@ -36,8 +37,8 @@ class PostgresSaver:
         self.genre_film_work = '''INSERT INTO content.genre_film_work(id, film_work_id, genre_id)
                                         VALUES(%(id)s, %(film_work_id)s, %(genre_id)s);'''
         
-        self.review_film_work_sql = '''INSERT INTO content.review_film_work(id, film_work_id, user_id, score, is_like)
-                                       VALUES(%(id)s, %(film_work_id)s, %(user_id)s, %(score)s, %(is_like)s);'''
+        self.review_film_work_sql = '''INSERT INTO content.review_film_work(id, film_work_id, user_id, score, review, review_date)
+                                       VALUES(%(id)s, %(film_work_id)s, %(user_id)s, %(score)s, %(review)s, %(review_date)s);'''
 
     def insert_film_work(self, data):
         with self.connection.cursor() as cursor:
@@ -120,14 +121,15 @@ class CSVLoader:
                                          "film_work_id": film_work_id,
                                          "genre_id": genre['id']})
 
-    def add_review_film_work(self, review_ids: list, film_work_id: uuid.UUID, score: int, like: bool):
+    def add_review_film_work(self, review_ids: list, film_work_id: uuid.UUID, score: int, review_content: str, review_date: str):
         for review in review_ids:
             review_film_work_id = str(uuid.uuid4())
             self.review_film_work.append({"id": review_film_work_id,
                                           "film_work_id": film_work_id,
                                           "user_id": review['id'],
                                           "score": score,
-                                          "is_like": like})
+                                          "review": review_content,
+                                          "review_date": review_date if review_date else ''})
 
     def _prepare_movie(self, movie_field: str,  film_work_raw_row: dict, target_rows: list):
         movie_field_data = film_work_raw_row[movie_field].replace(', ', ',').split(',')
@@ -149,7 +151,6 @@ class CSVLoader:
             spamreader = csv.reader(csvfile, delimiter=',')
             for row in spamreader:
                 self.film_work_raw.append(name_filelds(movie_field_names, row))
-                
 
     def get_reviews(self):
         with open(self.review_file_path, newline='') as csvfile:
@@ -158,7 +159,8 @@ class CSVLoader:
                 self.review_raw.append(name_filelds(review_field_names, row))
 
     def load_reviews(self, old_film_id, new_film_id):
-        for idx, review in enumerate(self.review_raw):
+        # for idx, review in enumerate(self.review_raw):
+        for review in self.review_raw:
             if review['rotten_tomatoes_link'] == old_film_id:
                 self._prepare_movie('critic_name', review, self.users)
                 # print(review)
@@ -166,24 +168,27 @@ class CSVLoader:
                 try:
                     if review['review_score'].find('/') != -1:
                         score, like = parse_slash(review['review_score'])
-                    
-                    elif len(review['review_score']) > 0 and review['review_score'][0] in ALPHABET_SCORES_LETTERS:
+
+                    elif review['review_score'][0] in ALPHABET_SCORES_LETTERS:
                         score, like = parse_alphabet(review['review_score'])
 
-                    else:
-                        score, like = parse_only_score(review['review_score'])
-                        
+                    self.add_review_film_work(
+                        film_reviews,
+                        new_film_id,
+                        score,
+                        review['review_content'],
+                        review['review_date'])
                 except Exception:
-                    score, like = 0, False
-
-                self.add_review_film_work(film_reviews, new_film_id, score, like)
-                # del self.review_raw[idx]
-                # print(len(self.users))
+                    pass
 
     def load_movies(self):
         self.get_movies()
         self.get_reviews()
+        film_work_raw_len = str(len(self.film_work_raw))
+        current_film = 0
         for film in self.film_work_raw:
+            print(current_film)
+            current_film += 1
             film_id = str(uuid.uuid4())
             reviews_data = self.load_reviews(film.get('rotten_tomatoes_link'), film_id)
             # film_id = film.get('rotten_tomatoes_link')
@@ -241,5 +246,5 @@ if __name__ == '__main__':
     dsl = {'dbname': 'movies_database', 'user': 'postgres', 'password': 'pass', 'host': 'localhost', 'port': 6432}
     # result = load_from_csv('100_rotten_tomatoes_movies.csv', dsl)
     with psycopg2.connect(**dsl, cursor_factory=DictCursor) as pg_conn:
-        result = load_from_csv('rotten_tomatoes_movies.csv', 'rotten_tomatoes_critic_reviews.csv', pg_conn)
+        result = load_from_csv('rotten_tomatoes_movies.csv', 'clean_critic_review.csv', pg_conn)
     print("--- %s seconds ---" % (time.time() - start_time))

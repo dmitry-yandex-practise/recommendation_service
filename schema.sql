@@ -54,9 +54,9 @@ CREATE TABLE IF NOT EXISTS content.review_film_work (
     id uuid PRIMARY KEY,
     film_work_id uuid NOT NULL,
     user_id uuid NOT NULL,
-    score int,
-    is_like bool,
-    created_at timestamp with time zone DEFAULT NOW()
+    score INT,
+    review TEXT,
+    review_date timestamp with time zone DEFAULT NOW()
 );
 
 
