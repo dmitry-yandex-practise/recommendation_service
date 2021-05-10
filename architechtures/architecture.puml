@@ -1,0 +1,66 @@
+@startuml
+skinparam componentStyle uml2
+skinparam defaultTextAlignment center
+skinparam backgroundColor #EEEBDC
+skinparam monochrome true
+skinparam roundcorner 10
+actor User
+component web [
+WEB UI
+]
+component movie_api [
+Movies API
+(Fast API)
+]
+
+component recommendation_api [
+Recommendations API
+(Fast API)
+]
+
+component kafka [
+Очередь событий
+(Kafka)
+]
+
+database clickhouse_ugc [
+Хранилище UGC
+(ClickHouse)
+]
+
+database recommendations_db [
+Хранилище рекомендаций
+(PostgreSQL)
+]
+
+database movies_db [
+Хранилище фильмов
+(PostgreSQL)
+]
+
+database recommendations_cache [
+Cache
+(Redis)
+]
+
+component scheduler [
+Scheduler
+]
+
+component model_training [
+Recommender Engine
+(Python + LightFM)
+]
+
+web .down.> User
+movie_api -down-> web
+recommendation_api -down-> movie_api
+recommendations_cache -- recommendation_api
+movie_api -> kafka
+kafka -up-> clickhouse_ugc: ETL
+clickhouse_ugc -down-> model_training
+movies_db -down-> model_training
+scheduler -down-> model_training
+model_training -down-> recommendations_db
+recommendations_db - recommendation_api
+@enduml
