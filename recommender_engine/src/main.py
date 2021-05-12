@@ -1,42 +1,37 @@
-import numpy as np
-
-from lightfm.datasets import fetch_movielens
-
-movielens = fetch_movielens()
-
-print(movielens)
-
-train = movielens['train']
-test = movielens['test']
-
 from lightfm import LightFM
-from lightfm.evaluation import precision_at_k
-from lightfm.evaluation import auc_score
+from lightfm.data import Dataset
+from core.config import Config
+from sklearn.model_selection import train_test_split
+from postgres import ratings, movies
 
-model = LightFM(learning_rate=0.05, loss='bpr')
-model.fit(train, epochs=10)
+r = [(x["film_work_id"], x["user_id"], x["score"]) for x in ratings]
+m = [(x["id"], x["title"], x["rating"], x["type"],) for x in movies]
 
-train_precision = precision_at_k(model, train, k=10).mean()
-test_precision = precision_at_k(model, test, k=10).mean()
+# split into train and test sets
+train, test = train_test_split(ratings, test_size=0.2)
 
-train_auc = auc_score(model, train).mean()
-test_auc = auc_score(model, test).mean()
+data = Dataset(user_identity_features=False)
 
-print("bpr")
-print('Precision: train %.2f, test %.2f.' % (train_precision, test_precision))
-print('AUC: train %.2f, test %.2f.' % (train_auc, test_auc))
+data.fit(
+    users="",
+    items="",
+    item_features="",
+)
 
-model = LightFM(learning_rate=0.05, loss='warp')
+item_features = data.build_item_features()
 
-model.fit_partial(train, epochs=10)
+interactions = data.build_interactions()
 
-train_precision = precision_at_k(model, train, k=10).mean()
-test_precision = precision_at_k(model, test, k=10).mean()
+model = LightFM(
+    no_components=10,
+    loss="warp",
+)
 
-train_auc = auc_score(model, train).mean()
-test_auc = auc_score(model, test).mean()
+model.fit(
+    interactions=interactions,
+    item_features=item_features,
+    epochs=30,
+    num_threads=2,
+)
 
-
-print("warp")
-print('Precision: train %.2f, test %.2f.' % (train_precision, test_precision))
-print('AUC: train %.2f, test %.2f.' % (train_auc, test_auc))
+recommendations = model.predict()
