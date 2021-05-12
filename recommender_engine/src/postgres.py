@@ -20,3 +20,9 @@ select film_work_id, user_id, score from content.review_film_work;
 """)
 ratings = cur.fetchall()
 print(ratings[0])
+
+cur.execute("""
+select id, name from content.users;
+""")
+users = cur.fetchall()
+print(users[0])
