@@ -1,7 +1,6 @@
 import pandas as pd
 from lightfm.data import Dataset
 
-
 # create dummy dataset
 interactions_data = {
     'user': ['u1', 'u1', 'u2', 'u2', 'u3', 'u3', 'u3'],
