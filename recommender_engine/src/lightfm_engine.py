@@ -1,9 +1,10 @@
 import numpy as np
+import pandas as pd
 from lightfm import LightFM
 from lightfm.cross_validation import random_train_test_split
 from lightfm.data import Dataset
 from lightfm.evaluation import auc_score, precision_at_k
-
+import scipy
 from core.config import Config
 from postgres import ratings, movies, users
 
@@ -36,12 +37,41 @@ item_features = data.build_item_features(
     data=[(m["id"], [m["title"], "rating:" + str(m["rating"]), "type:" + str(m["type"]), ]) for m in movies]
 )
 
-# data: iterable of (user_id, item_id, weight)
-interactions, weights = data.build_interactions(
-    data=[(x["user_id"], x["film_work_id"], x["score"]) for x in ratings]
-)
 
-interactions = weights
+def create_interaction_matrix(df, user_col, item_col, rating_col, norm=False, threshold=None):
+    '''
+    Function to create an interaction matrix dataframe from transactional type interactions
+    Required Input -
+        - df = Pandas DataFrame containing user-item interactions
+        - user_col = column name containing user's identifier
+        - item_col = column name containing item's identifier
+        - rating col = column name containing user feedback on interaction with a given item
+        - norm (optional) = True if a normalization of ratings is needed
+        - threshold (required if norm = True) = value above which the rating is favorable
+    Expected output -
+        - Pandas dataframe with user-item interactions ready to be fed in a recommendation algorithm
+    '''
+    interactions = df.groupby([user_col, item_col])[rating_col] \
+        .sum().unstack().reset_index(). \
+        fillna(0).set_index(user_col)
+    if norm:
+        interactions = interactions.applymap(lambda x: 1 if x > threshold else 0)
+    return interactions
+
+
+dataframe = pd.DataFrame(data=ratings,)
+
+interactions = create_interaction_matrix(df=dataframe,
+                                         user_col='user_id',
+                                         item_col='film_work_id',
+                                         rating_col='score',
+                                         norm=True,
+                                         threshold=60)
+
+# data: iterable of (user_id, item_id, weight)
+# interactions, weights = data.build_interactions(data=[(x["user_id"], x["film_work_id"], x["score"]) for x in ratings])
+
+# interactions = weights
 
 model = LightFM(
     no_components=100,
@@ -57,16 +87,16 @@ model = LightFM(
 )
 
 # split into train and test sets
-train, test = random_train_test_split(interactions)
+train, test = random_train_test_split(scipy.sparse.csr_matrix(interactions.values.T))
 
-model.fit(
-    interactions=train,
-    item_features=item_features,
-    sample_weight=None,
-    epochs=50,
-    num_threads=Config.num_threads,
-    verbose=True
-)
+#model.fit(
+#    interactions=train,
+#    item_features=item_features,
+#    sample_weight=None,
+#    epochs=50,
+#    num_threads=Config.num_threads,
+#    verbose=True
+#)
 
 
 def run_metrics():
@@ -133,13 +163,14 @@ def find_movie(id, movies_list):
             return movie
 
 
-user_id_map, user_feature_map, item_id_map, item_feature_map = data.mapping()  # returns a tuple of dicts
-item_id_map_inv = {v: k for k, v in item_id_map.items()}  # inverting dict
-n_users, n_items = train.shape
-scores = model.predict(user_id_map['00043238-3a89-4c64-ab29-313f298ba18b'], np.arange(n_items))
-top_items = np.argsort(-scores)
-for x in top_items[:3]:
-    m = find_movie(id=item_id_map_inv[x], movies_list=movies)
-    print(m["id"], m["title"])
+def recommend_movies():
+    user_id_map, user_feature_map, item_id_map, item_feature_map = data.mapping()  # returns a tuple of dicts
+    item_id_map_inv = {v: k for k, v in item_id_map.items()}  # inverting dict
+    n_users, n_items = train.shape
+    scores = model.predict(user_id_map['00043238-3a89-4c64-ab29-313f298ba18b'], np.arange(n_items))
+    top_items = np.argsort(-scores)
+    for x in top_items[:3]:
+        m = find_movie(id=item_id_map_inv[x], movies_list=movies)
+        print(m["id"], m["title"])
 
-run_metrics()
+#run_metrics()
