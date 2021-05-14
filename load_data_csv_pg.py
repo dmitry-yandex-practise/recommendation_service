@@ -1,17 +1,16 @@
-import sqlite3
-from pprint import pprint
-from sqlite3 import Row
-import uuid
 import csv
-import sys
 import json
-from datetime import datetime
-from parse_score import parse_alphabet, parse_only_score, parse_slash, ALPHABET_SCORES_LETTERS
-
 import psycopg2
+import sqlite3
+import sys
+import uuid
+from datetime import datetime
+from pprint import pprint
 from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor, execute_batch
+from sqlite3 import Row
 
+from parse_score import parse_alphabet, parse_only_score, parse_slash, ALPHABET_SCORES_LETTERS
 from util import name_filelds, movie_field_names, review_field_names
 
 
@@ -27,7 +26,7 @@ class PostgresSaver:
 
         self.genre_sql = '''INSERT INTO content.genre(id, name, updated_at)
                                        VALUES(%(id)s, %(name)s, %(updated_at)s);'''
-        
+
         self.user_sql = '''INSERT INTO content.users(id, name, updated_at)
                                        VALUES(%(id)s, %(name)s, %(updated_at)s);'''
 
@@ -36,7 +35,7 @@ class PostgresSaver:
 
         self.genre_film_work = '''INSERT INTO content.genre_film_work(id, film_work_id, genre_id)
                                         VALUES(%(id)s, %(film_work_id)s, %(genre_id)s);'''
-        
+
         self.review_film_work_sql = '''INSERT INTO content.review_film_work(id, film_work_id, user_id, score, review, review_date)
                                        VALUES(%(id)s, %(film_work_id)s, %(user_id)s, %(score)s, %(review)s, %(review_date)s);'''
 
@@ -121,7 +120,8 @@ class CSVLoader:
                                          "film_work_id": film_work_id,
                                          "genre_id": genre['id']})
 
-    def add_review_film_work(self, review_ids: list, film_work_id: uuid.UUID, score: int, review_content: str, review_date: str):
+    def add_review_film_work(self, review_ids: list, film_work_id: uuid.UUID, score: int, review_content: str,
+                             review_date: str):
         for review in review_ids:
             review_film_work_id = str(uuid.uuid4())
             self.review_film_work.append({"id": review_film_work_id,
@@ -131,7 +131,7 @@ class CSVLoader:
                                           "review": review_content,
                                           "review_date": review_date if review_date else ''})
 
-    def _prepare_movie(self, movie_field: str,  film_work_raw_row: dict, target_rows: list):
+    def _prepare_movie(self, movie_field: str, film_work_raw_row: dict, target_rows: list):
         movie_field_data = film_work_raw_row[movie_field].replace(', ', ',').split(',')
         ids_data = []
         for data in movie_field_data:
@@ -230,7 +230,7 @@ class CSVLoader:
 
 
 def load_from_csv(file_path, review_file_path, pg_conn):
-# def load_from_csv(file_path):
+    # def load_from_csv(file_path):
     """Основной метод загрузки данных из SQLite в Postgres"""
     postgres_saver = PostgresSaver(pg_conn)
     csv_loader = CSVLoader(file_path, review_file_path)
@@ -242,6 +242,7 @@ def load_from_csv(file_path, review_file_path, pg_conn):
 
 if __name__ == '__main__':
     import time
+
     start_time = time.time()
     dsl = {'dbname': 'movies_database', 'user': 'postgres', 'password': 'pass', 'host': 'localhost', 'port': 6432}
     # result = load_from_csv('100_rotten_tomatoes_movies.csv', dsl)
