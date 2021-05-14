@@ -150,3 +150,4 @@ cython_debug/
 movies-database.pgdump
 postgres/movies-database.sql
 002_movies-database.sql
+/recommender_engine/src/checkpoint/

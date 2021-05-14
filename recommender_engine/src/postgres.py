@@ -24,7 +24,7 @@ movies = cur.fetchall()
 print(movies[0])
 
 cur.execute("""
-select film_work_id, user_id, score from content.review_film_work limit 2000;
+select film_work_id, user_id, score from content.review_film_work;
 """)
 ratings = cur.fetchall()
 print(ratings[0])
