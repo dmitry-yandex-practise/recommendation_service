@@ -17,3 +17,16 @@ docker build -f Dockerfile-with-data . -t movies-db-with-data
 ```bash
 docker run --rm -d -v movies-db-vol:/var/lib/postgresql/data -p 6432:5432 --name=movies-db movies-db-with-data
 ```
+
+
+## Запуск
+
+API, Kafka
+```bash
+docker-compose -f docker-compose.yml -f kafka/docker-compose.yml up --build -d
+```
+
+ClickHouse
+```bash
+docker-compose -f clickhouse/docker-compose.yml up --build -d
+```

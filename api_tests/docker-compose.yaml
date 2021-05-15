@@ -1,0 +1,40 @@
+version: "3"
+services:
+  redis:
+    image: redis:6.0.9
+    container_name: test-redis
+    ports:
+      - 6380:6379
+
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    container_name: test-es
+    environment:
+      - node.name=es01
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9201:9200
+
+  backend:
+    container_name: test-backend
+    build:
+      context: ../api
+    environment:
+      - REDIS_HOST=redis
+      - ELASTIC_HOST=es
+    entrypoint: >
+      bash -c "PYTHONPATH=/src
+      && utils/entrypoint_waiter.sh
+      && utils/create_es_schemas.sh
+      && python3 src/main.py"
+    ports:
+      - 8889:8888
+    restart: always
+    depends_on:
+      - es
+      - redis
