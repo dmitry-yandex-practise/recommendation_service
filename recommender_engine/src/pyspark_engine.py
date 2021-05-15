@@ -37,7 +37,6 @@ def change_uuid_to_int(ratings, movies):
         movies.pop(i)
 
     uuid_int_map_inv = {v: k for k, v in uuid_int_map.items()}
-    print(z)
 
     return ratings, movies, uuid_int_map, uuid_int_map_inv
 
@@ -62,7 +61,7 @@ def hyperparameters_tuning(training, rank_grid, reg_param_grid, max_iter_grid):
         predictionCol="prediction")
     print("Num models to be tested: ", len(param_grid))
     # Build cross validation using CrossValidator
-    cv = CrossValidator(estimator=als, estimatorParamMaps=param_grid, evaluator=evaluator, numFolds=5, parallelism=4, )
+    cv = CrossValidator(estimator=als, estimatorParamMaps=param_grid, evaluator=evaluator, numFolds=10, parallelism=4, )
 
     start = datetime.datetime.now()
     print("Starting time: ", start)
@@ -137,8 +136,9 @@ if __name__ == '__main__':
     movies = spark.createDataFrame(movies)
     (training, test) = ratings_rdd.randomSplit([0.8, 0.2])
 
-    # hyperparameters_tuning(training, rank_grid=[100, 150], max_iter_grid=[100, 150, 200], reg_param_grid=[0.01, 0.1])
-
-    generate_recommendations(training, test, 150, 10, 0.1)
+    rank, max_iter, reg_param = hyperparameters_tuning(training, rank_grid=[100, 150], max_iter_grid=[100, 150, 200],
+                                                       reg_param_grid=[.01, .05, .1, .15])
+    #rank, max_iter, reg_param = 150, 10, 0.1
+    generate_recommendations(training, test, rank, max_iter, reg_param)
 
     spark.stop()
