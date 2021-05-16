@@ -4,21 +4,14 @@ services:
   api:
     build:
       ./api/
-    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
+    command: "python3 src/main.py"
     depends_on:
-      - postgres
+      - redis
     restart: on-failure
     ports:
       - 8004:8000
-
-  postgres:
-    image: postgres:latest
-    restart: always
-    environment:
-      - POSTGRES_DB=recommendations
-      - POSTGRES_USER=${RECOMMENDATIONS_DB_USER}
-      - POSTGRES_PASSWORD=${RECOMMENDATIONS_DB_PWD}
+  redis:
+    image: redis:6.0.9
+    container_name: redis
     ports:
-      - 5432:5432
-    volumes:
-      - ./recommendations.sql:/docker-entrypoint-initdb.d/init.sql
+      - 6379:6379
