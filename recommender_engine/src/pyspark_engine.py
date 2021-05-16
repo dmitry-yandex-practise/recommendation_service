@@ -6,7 +6,11 @@ from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, explode
 
-from postgres import ratings, movies
+from connections.postgres import PostgresConnCtxManager
+from core.config import Config
+from movies_data.pg_movies import retrieve_movies_data
+from ugc.pg_ugc import retrieve_ratings
+from user_data.pg_user_data import retrieve_users_data
 
 
 def change_uuid_to_int(ratings, movies):
@@ -128,6 +132,11 @@ def generate_recommendations(training, test, rank, max_iter, reg_param):
 if __name__ == '__main__':
     spark = SparkSession.builder.appName("Recommendations").config('spark.ui.showConsoleProgress', 'true').getOrCreate()
     sparkContext = spark.sparkContext
+
+    conn = PostgresConnCtxManager(Config.pg_host, Config.pg_database, Config.pg_user, Config.pg_password)
+    movies = retrieve_movies_data(conn_ctx_manager=conn)  # List of RealDict Objects
+    users = retrieve_users_data(conn_ctx_manager=conn)  # List of RealDict Objects
+    ratings = retrieve_ratings(conn_ctx_manager=conn)  # List of RealDict Objects
 
     sparkContext.setCheckpointDir('checkpoint/')
     # sparkContext.setLogLevel('DEBUG')

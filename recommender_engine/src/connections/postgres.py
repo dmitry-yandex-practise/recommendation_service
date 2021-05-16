@@ -1,6 +1,5 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from core.config import Config
 
 
 class PostgresConnCtxManager:
@@ -64,9 +63,3 @@ def retrieve_ratings(conn_ctx_manager):
         ratings = cur.fetchall()
         print(ratings[0])
         return ratings
-
-
-conn = PostgresConnCtxManager(Config.pg_host, Config.pg_database, Config.pg_user, Config.pg_password)
-movies = retrieve_movies_data(conn_ctx_manager=conn)  # List of RealDict Objects
-users = retrieve_users_data(conn_ctx_manager=conn)  # List of RealDict Objects
-ratings = retrieve_ratings(conn_ctx_manager=conn)  # List of RealDict Objects
