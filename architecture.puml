@@ -30,7 +30,7 @@ database clickhouse_ugc [
 
 database recomendations_db [
 Хранилище рекомендаций
-(?pg?clickhouse)
+(pg)
 ]
 
 component etl_kafka_clickhouse [

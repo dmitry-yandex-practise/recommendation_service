@@ -1,5 +1,9 @@
 version: '3'
 
+volumes:
+  data01:
+    driver: local
+
 services:
   api:
     build:
@@ -15,3 +19,46 @@ services:
     container_name: redis
     ports:
       - 6379:6379
+
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    container_name: es01
+    environment:
+      - node.name=es01
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  backend:
+    container_name: backend
+    build:
+      context: api
+    ports:
+      - 8888:8888
+    environment:
+      BROKER_HOST: broker
+      BROKER_PORT: 29092
+    depends_on:
+      - es01
+      - redis
+    restart: on-failure
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx/
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/templates/:ro
+    environment:
+      - API_HOST=http://backend
+      - API_PORT=8888
+    ports:
+      - 0.0.0.0:80:80
+    restart: on-failure

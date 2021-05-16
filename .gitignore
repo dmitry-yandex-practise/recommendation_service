@@ -149,3 +149,4 @@ cython_debug/
 # data files
 movies-database.pgdump
 movies-database.sql
+002_movies-database.sql

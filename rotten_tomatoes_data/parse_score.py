@@ -10,6 +10,7 @@ ALPHABET_SCORES = {'A': int(ALPHABET_SCORE_CONST * 6),
                    'F': int(ALPHABET_SCORE_CONST * 1)}
 LIKE_THRESHOLD = 60
 
+
 def parse_slash(raw_score: str):
     slash_pos = raw_score.find('/')
     score, score_max = raw_score[:slash_pos], raw_score[slash_pos + 1:]
@@ -29,6 +30,7 @@ def parse_alphabet(raw_score: str):
     else:
         return ALPHABET_SCORES[score], False
 
+
 def parse_only_score(raw_score):
     score = int(raw_score)
     score_max = None
@@ -41,10 +43,10 @@ def parse_only_score(raw_score):
 
     elif score > 10 and score <= 100:
         score_max == 100
-    
+
     elif score > 100 and score <= 1000:
         score_max == 1000
-    
+
     movie_score = int((float(score) / float(score_max)) * 100)
     if movie_score >= LIKE_THRESHOLD:
         return movie_score, True
