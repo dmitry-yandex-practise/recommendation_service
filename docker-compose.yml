@@ -3,7 +3,7 @@ version: '3'
 services:
   api:
     build:
-      ./api/
+      ./recommendations_api/
     command: "python3 src/main.py"
     depends_on:
       - redis
