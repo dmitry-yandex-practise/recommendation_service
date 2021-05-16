@@ -1,0 +1,130 @@
+[
+  {
+    "id": "0e5b79d5-39b2-437b-b824-ea9a7453ee51",
+    "title": "Demolishing and Building Up the Star Theatre",
+    "type": "movie",
+    "description": "This film shows the demolition of the historic Star Theatre building (formerly Wallack's) at the corner of Broadway and 13th Street, New York. To secure this unique picture a Biograph camera was kept constantly at work by specially devised electric apparatus for weeks, during which time exposures were made every four minutes, 8 hours a day. Before the contractors began their work of tearing down and after the last vestige of the building had been removed, 15 seconds of exposure at normal speed were made. Thus in the finished positive one views at first the old Star Theatre standing as it had for years looking down with serenity upon the bustle of Broadway traffic. Then as if struck by a tornado of supernatural strength, the building begins to crumble. Chimneys totters, walls cave in, and whole stories vanish, until at last the site shows only a cellar excavation; and the Broadway cars with the sidewalk procession continue as if nothing unusual had happened. When this view is shown in the reverse, the effect is very extraordinary.",
+    "imdb_rating": 6.7,
+    "actors": [],
+    "writers": [],
+    "directors": [
+      {
+        "id": "6a78e610-ba04-4149-90d8-db73aa61dbd5",
+        "name": "Frederick S. Armitage"
+      }
+    ],
+    "genres": [
+      {
+        "id": "d0bdbd93-80b8-4805-bd3b-411f4ce0b792",
+        "name": "Short"
+      },
+      {
+        "id": "862856b9-12cd-4501-a3c8-9cd92804f12c",
+        "name": "Documentary"
+      }
+    ],
+    "directors_names": "Frederick S. Armitage",
+    "actors_names": "",
+    "writers_names": ""
+  },
+  {
+    "id": "a69408b7-fcd2-45aa-92eb-5cc50778c7d6",
+    "title": "The Star of Bethlehem",
+    "type": "movie",
+    "description": "Three wise men from the East follow a star to Bethlehem in search of the infant Jesus.",
+    "imdb_rating": 4.8,
+    "actors": [
+      {
+        "id": "230f2183-0103-479c-858f-1cae2890f1c3",
+        "name": "William Russell"
+      },
+      {
+        "id": "64b340f3-3522-4a4a-bfc8-07c98647eea1",
+        "name": "Florence La Badie"
+      },
+      {
+        "id": "ddc4af3c-fcc5-4891-94db-5bb09f29999d",
+        "name": "James Cruze"
+      },
+      {
+        "id": "21e53a3e-06a9-468c-88a1-20727a1216ec",
+        "name": "Harry Benham"
+      }
+    ],
+    "writers": [
+      {
+        "id": "5cd977fc-5249-45a8-95f5-3fbb9a652e7f",
+        "name": "Lloyd Lonergan"
+      }
+    ],
+    "directors": [
+      {
+        "id": "313c6688-eaab-4ad0-8d66-f2e5ec97f62d",
+        "name": "Lawrence Marston"
+      }
+    ],
+    "genres": [
+      {
+        "id": "d8f65fae-f552-4f99-85c2-a86d062bb61c",
+        "name": "Drama"
+      },
+      {
+        "id": "d0bdbd93-80b8-4805-bd3b-411f4ce0b792",
+        "name": "Short"
+      }
+    ],
+    "directors_names": "Lawrence Marston",
+    "actors_names": "William Russell,Florence La Badie,James Cruze,Harry Benham",
+    "writers_names": "Lloyd Lonergan"
+  },
+  {
+    "id": "da1f3780-f690-4e89-b9df-2bd27fff9aa2",
+    "title": "The Star Boarder",
+    "type": "movie",
+    "description": "Charlie stays at a boarding-house, where he is the landlady's favorite. Her husband grows jealous when observing this. Their little son has a camera. He happens to take some photos of his mother and Charlie in situations which are innocent but look indecent. He also takes a photo of his father and a female boarding-guest in a similar situation. In the evening the boy arranges a slide show in the boarding-house. Suddenly also the equivocal photos of his parents appear on the screen. His jealous father gets furious and starts chasing Charlie. Soon all the boarding-guests are involved in the fight.",
+    "imdb_rating": 5.4,
+    "actors": [
+      {
+        "id": "1dcb5d1b-45cc-474c-a9ae-2963f7f9e943",
+        "name": "Minta Durfee"
+      },
+      {
+        "id": "542366c8-7e74-4cec-bfbb-8dd5434a4216",
+        "name": "Gordon Griffith"
+      },
+      {
+        "id": "4b6e55c1-5aca-4b00-9bbf-ce1a9578e007",
+        "name": "Charles Chaplin"
+      },
+      {
+        "id": "39632837-8910-4c0e-b868-d1b6927e7610",
+        "name": "Edgar Kennedy"
+      }
+    ],
+    "writers": [
+      {
+        "id": "0c803b28-f742-4e3f-8022-8cf1ae1daca7",
+        "name": "Craig Hutchinson"
+      }
+    ],
+    "directors": [
+      {
+        "id": "b13db8bd-9012-4b6d-9f05-3b98bcad9898",
+        "name": "George Nichols"
+      }
+    ],
+    "genres": [
+      {
+        "id": "d0bdbd93-80b8-4805-bd3b-411f4ce0b792",
+        "name": "Short"
+      },
+      {
+        "id": "8505b82c-8d47-4aa3-87c8-ba204e9cef6e",
+        "name": "Comedy"
+      }
+    ],
+    "directors_names": "George Nichols",
+    "actors_names": "Minta Durfee,Gordon Griffith,Charles Chaplin,Edgar Kennedy",
+    "writers_names": "Craig Hutchinson"
+  }
+]

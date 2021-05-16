@@ -1,0 +1,22 @@
+server {
+    listen       80 default_server;
+    listen       [::]:80 default_server;
+    server_name  _;
+
+    root /data;
+
+       location / {
+           proxy_pass ${API_HOST}:${API_PORT};
+       }
+   
+
+    
+
+    
+
+    error_page   404              /404.html;
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   html;
+    }
+}
