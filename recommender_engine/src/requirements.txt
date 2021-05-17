@@ -1,0 +1,8 @@
+lightfm==1.16
+luigi==3.0.3
+numpy==1.20.2
+pandas==1.2.4
+psycopg2-binary==2.8.6
+tqdm==4.60.0
+clickhouse-driver==0.2.0
+redis==3.5.3
