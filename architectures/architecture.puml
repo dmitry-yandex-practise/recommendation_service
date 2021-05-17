@@ -30,17 +30,12 @@ database clickhouse_ugc [
 
 database recommendations_db [
 Хранилище рекомендаций
-(PostgreSQL)
+(Redis)
 ]
 
 database movies_db [
 Хранилище фильмов
 (PostgreSQL)
-]
-
-database recommendations_cache [
-Cache
-(Redis)
 ]
 
 component scheduler [
@@ -55,7 +50,6 @@ Recommender Engine
 web .down.> User
 movie_api -down-> web
 recommendation_api -down-> movie_api
-recommendations_cache -- recommendation_api
 movie_api -> kafka
 kafka -up-> clickhouse_ugc: ETL
 clickhouse_ugc -down-> model_training
