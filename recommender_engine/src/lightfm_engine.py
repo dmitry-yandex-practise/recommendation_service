@@ -1,19 +1,10 @@
 import numpy as np
-import pandas as pd
 from lightfm import LightFM
-from lightfm.cross_validation import random_train_test_split
 from lightfm.data import Dataset
 from lightfm.evaluation import auc_score, precision_at_k
-import scipy
+from tqdm import tqdm
+
 from core.config import Config
-from postgres import ratings, movies, users
-
-
-# Ratings :
-
-# r = [(x["film_work_id"], x["user_id"], x["score"]) for x in ratings]
-# m = [(x["id"], x["title"], x["rating"], x["type"],) for x in movies]
-# u = [(x["id"], x["name"],) for x in users]
 
 
 def create_movie_features_set(movies):
@@ -25,111 +16,56 @@ def create_movie_features_set(movies):
     return s
 
 
-data = Dataset()
+def create_dataset(users, movies):
+    dataset = Dataset()
 
-data.fit(
-    users=[x["id"] for x in users],
-    items=[x["id"] for x in movies],
-    item_features=create_movie_features_set(movies),
-)
-# (item id, [list of feature names])
-item_features = data.build_item_features(
-    data=[(m["id"], [m["title"], "rating:" + str(m["rating"]), "type:" + str(m["type"]), ]) for m in movies]
-)
+    dataset.fit(
+        users=[x["id"] for x in users],
+        items=[x["id"] for x in movies],
+        item_features=create_movie_features_set(movies),
+    )
 
-
-def create_interaction_matrix(df, user_col, item_col, rating_col, norm=False, threshold=None):
-    '''
-    Function to create an interaction matrix dataframe from transactional type interactions
-    Required Input -
-        - df = Pandas DataFrame containing user-item interactions
-        - user_col = column name containing user's identifier
-        - item_col = column name containing item's identifier
-        - rating col = column name containing user feedback on interaction with a given item
-        - norm (optional) = True if a normalization of ratings is needed
-        - threshold (required if norm = True) = value above which the rating is favorable
-    Expected output -
-        - Pandas dataframe with user-item interactions ready to be fed in a recommendation algorithm
-    '''
-    interactions = df.groupby([user_col, item_col])[rating_col] \
-        .sum().unstack().reset_index(). \
-        fillna(0).set_index(user_col)
-    if norm:
-        interactions = interactions.applymap(lambda x: 1 if x > threshold else 0)
-    return interactions
+    return dataset
 
 
-dataframe = pd.DataFrame(data=ratings,)
-
-interactions = create_interaction_matrix(df=dataframe,
-                                         user_col='user_id',
-                                         item_col='film_work_id',
-                                         rating_col='score',
-                                         norm=True,
-                                         threshold=60)
-
-# data: iterable of (user_id, item_id, weight)
-# interactions, weights = data.build_interactions(data=[(x["user_id"], x["film_work_id"], x["score"]) for x in ratings])
-
-# interactions = weights
-
-model = LightFM(
-    no_components=100,
-    k=5,
-    n=10,
-    learning_schedule="adagrad",
-    loss="warp",
-    learning_rate=0.05,
-    item_alpha=0.0,
-    user_alpha=0.0,
-    max_sampled=50,
-    random_state=None,
-)
-
-# split into train and test sets
-train, test = random_train_test_split(scipy.sparse.csr_matrix(interactions.values.T))
-
-#model.fit(
-#    interactions=train,
-#    item_features=item_features,
-#    sample_weight=None,
-#    epochs=50,
-#    num_threads=Config.num_threads,
-#    verbose=True
-#)
+def create_model():
+    model = LightFM(
+        no_components=Config.NO_COMPONENTS,
+        learning_schedule="adagrad",
+        loss="warp",
+        max_sampled=50,
+        learning_rate=Config.LEARNING_RATE,
+        item_alpha=Config.ITEM_ALPHA,
+        random_state=np.random.RandomState(Config.SEEDNO)
+    )
+    return model
 
 
-def run_metrics():
-    train_precision = precision_at_k(
+def run_metrics(model, train, test, item_features):
+    precision = precision_at_k(
         model,
-        train,
-        k=10,
-        item_features=item_features,
-        num_threads=Config.num_threads,
-    ).mean()
+        test_interactions=test,
 
-    test_precision = precision_at_k(
-        model,
-        test,
-        k=10,
+        k=Config.K,
         item_features=item_features,
-        num_threads=Config.num_threads,
+        num_threads=Config.NO_THREADS,
+        check_intersections=False
     ).mean()
 
     print("Precision")
-    print(train_precision)
-    print(test_precision)
+    print(precision)
 
-    train_auc = auc_score(
-        model, train, item_features=item_features, num_threads=Config.num_threads
-    ).mean()
-    test_auc = auc_score(
-        model, test, item_features=item_features, num_threads=Config.num_threads
+    auc = auc_score(
+        model,
+        test_interactions=test,
+
+        item_features=item_features,
+        num_threads=Config.NO_THREADS,
+        check_intersections=False
     ).mean()
 
     print("Auc")
-    print(train_auc)
-    print(test_auc)
+    print(auc)
 
 
 # Example from LightFM docs
@@ -163,14 +99,14 @@ def find_movie(id, movies_list):
             return movie
 
 
-def recommend_movies():
+def recommend_movies(data, train, model):
     user_id_map, user_feature_map, item_id_map, item_feature_map = data.mapping()  # returns a tuple of dicts
     item_id_map_inv = {v: k for k, v in item_id_map.items()}  # inverting dict
     n_users, n_items = train.shape
-    scores = model.predict(user_id_map['00043238-3a89-4c64-ab29-313f298ba18b'], np.arange(n_items))
-    top_items = np.argsort(-scores)
-    for x in top_items[:3]:
-        m = find_movie(id=item_id_map_inv[x], movies_list=movies)
-        print(m["id"], m["title"])
+    recommendations = {}
+    for user in tqdm(user_id_map, desc='Generating Recommendations', colour='green'):
+        scores = model.predict(user_id_map[user], np.arange(n_items), num_threads=Config.NO_THREADS)
 
-#run_metrics()
+        top_items = {count: item_id_map_inv[value] for count, value in enumerate(np.argsort(-scores)[0:Config.K])}
+        recommendations[user] = top_items
+    return recommendations

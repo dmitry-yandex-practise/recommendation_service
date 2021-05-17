@@ -133,7 +133,7 @@ if __name__ == '__main__':
     spark = SparkSession.builder.appName("Recommendations").config('spark.ui.showConsoleProgress', 'true').getOrCreate()
     sparkContext = spark.sparkContext
 
-    conn = PostgresConnCtxManager(Config.pg_host, Config.pg_database, Config.pg_user, Config.pg_password)
+    conn = PostgresConnCtxManager(Config.PG_HOST, Config.PG_DATABASE, Config.PG_USER, Config.PG_PASSWORD)
     movies = retrieve_movies_data(conn_ctx_manager=conn)  # List of RealDict Objects
     users = retrieve_users_data(conn_ctx_manager=conn)  # List of RealDict Objects
     ratings = retrieve_ratings(conn_ctx_manager=conn)  # List of RealDict Objects
@@ -147,7 +147,7 @@ if __name__ == '__main__':
 
     rank, max_iter, reg_param = hyperparameters_tuning(training, rank_grid=[100, 150], max_iter_grid=[100, 150, 200],
                                                        reg_param_grid=[.01, .05, .1, .15])
-    #rank, max_iter, reg_param = 150, 10, 0.1
+    # rank, max_iter, reg_param = 150, 10, 0.1
     generate_recommendations(training, test, rank, max_iter, reg_param)
 
     spark.stop()

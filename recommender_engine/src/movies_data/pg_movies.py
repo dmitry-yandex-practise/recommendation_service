@@ -1,7 +1,7 @@
 def retrieve_movies_data(conn_ctx_manager):
     with conn_ctx_manager as cur:
         query = cur.mogrify("""
-            select fw.id, fw.title, fw.type
+            select fw.id, fw.title, fw.type, fw.rating
             --ARRAY_AGG(DISTINCT G.NAME) AS GENRES,
             --ARRAY_AGG(DISTINCT P.FULL_NAME) AS PERSONS
             from content.film_work as fw
