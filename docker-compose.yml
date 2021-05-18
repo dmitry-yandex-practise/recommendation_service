@@ -44,8 +44,8 @@ services:
     environment:
       BROKER_HOST: broker
       BROKER_PORT: 29092
+      ELASTIC_HOSTS: c-c9qhas1999s0igg1ago7.rw.mdb.yandexcloud.net
     depends_on:
-      - es01
       - redis
     restart: on-failure
 

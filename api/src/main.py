@@ -25,7 +25,11 @@ app = FastAPI(
 async def startup():
     redis.redis = await aioredis.create_redis_pool((config.REDIS_HOST, config.REDIS_PORT), minsize=10, maxsize=20)
     elastic.es = AsyncElasticsearch(
-        hosts=[f'{config.ELASTIC_HOST}:{config.ELASTIC_PORT}'])
+        hosts=config.ELASTIC_HOSTS,
+        use_ssl=True,
+        verify_certs=True,
+        http_auth=(config.ELASTIC_USER, config.ELASTIC_PASS),
+        ca_certs=config.ELASTIC_CA_PATH)
     kafka.kafka_producer = AIOKafkaProducer(
         bootstrap_servers=f'{config.BROKER_HOST}:{config.BROKER_PORT}',
         key_serializer=str_to_bytes,
