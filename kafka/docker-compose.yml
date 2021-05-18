@@ -11,6 +11,9 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    logging:
+      driver: none
+
 
   broker:
     image: confluentinc/cp-server:6.0.1
@@ -41,6 +44,9 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+    logging:
+      driver: none
+
 
   schema-registry:
     image: confluentinc/cp-schema-registry:6.0.1
@@ -54,6 +60,9 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    logging:
+      driver: none
+
 
   connect:
     image: cnfldemos/cp-server-connect-datagen:0.4.0-6.0.1
@@ -85,6 +94,9 @@ services:
       CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+    logging:
+      driver: none
+
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:6.0.1
@@ -108,6 +120,9 @@ services:
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
+    logging:
+      driver: none
+
 
   ksqldb-server:
     image: confluentinc/cp-ksqldb-server:6.0.1
@@ -131,6 +146,9 @@ services:
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 1
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
+    logging:
+      driver: none
+
 
   ksqldb-cli:
     image: confluentinc/cp-ksqldb-cli:6.0.1
@@ -141,6 +159,9 @@ services:
       - ksqldb-server
     entrypoint: /bin/sh
     tty: true
+    logging:
+      driver: none
+
 
   ksql-datagen:
     image: confluentinc/ksqldb-examples:6.0.1
@@ -163,6 +184,9 @@ services:
       STREAMS_BOOTSTRAP_SERVERS: broker:29092
       STREAMS_SCHEMA_REGISTRY_HOST: schema-registry
       STREAMS_SCHEMA_REGISTRY_PORT: 8081
+    logging:
+      driver: none
+
 
   rest-proxy:
     image: confluentinc/cp-kafka-rest:6.0.1
@@ -178,3 +202,6 @@ services:
       KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
       KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
       KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+    logging:
+      driver: none
+

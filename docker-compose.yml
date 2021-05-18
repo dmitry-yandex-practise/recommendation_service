@@ -19,6 +19,9 @@ services:
     container_name: redis
     ports:
       - 6379:6379
+    logging:
+      driver: none
+
 
   backend:
     container_name: backend
@@ -48,3 +51,6 @@ services:
     ports:
       - 0.0.0.0:80:80
     restart: on-failure
+    logging:
+      driver: none
+
