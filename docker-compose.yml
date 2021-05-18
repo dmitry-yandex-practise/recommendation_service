@@ -14,6 +14,10 @@ services:
     restart: on-failure
     ports:
       - 8004:8000
+    environment:
+      BROKER_HOST: broker
+      BROKER_PORT: 29092
+      ELASTIC_HOSTS: c-c9qhas1999s0igg1ago7.rw.mdb.yandexcloud.net
   redis:
     image: redis:6.0.9
     container_name: redis
