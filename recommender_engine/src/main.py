@@ -1,12 +1,12 @@
-import json
-import sys
+from json import dumps
+from sys import version as sys_version
 
-import lightfm
-import luigi
-import numpy as np
-import pandas as pd
+from lightfm import __version__ as lightfm_version
 from lightfm.cross_validation import random_train_test_split
-from luigi import Task, run
+from luigi import Task, run, Target
+from luigi import __version__ as luigi_version
+from numpy.random import RandomState
+from pandas import DataFrame
 from tqdm import tqdm
 
 from connections.postgres import PostgresConnCtxManager
@@ -18,7 +18,7 @@ from ugc.pg_ugc import retrieve_ratings
 from user_data.pg_user_data import retrieve_users_data
 
 
-class MemoryTarget(luigi.Target):
+class MemoryTarget(Target):
     _data = {}
 
     def __init__(self, path):
@@ -64,13 +64,13 @@ class PrepareData(Task):
 
         # Creating interactions dataframe
         # data: iterable of (user_id, item_id, weight)
-        ratings_df = pd.DataFrame(ratings, columns=['user_id', 'film_work_id', 'score'])
+        ratings_df = DataFrame(ratings, columns=['user_id', 'film_work_id', 'score'])
         ratings_df.drop_duplicates(subset=['user_id', 'film_work_id'])
         interactions, weights = dataset.build_interactions(data=ratings_df.values)
 
         # split into train and test sets
         train_interactions, test_interactions = random_train_test_split(
-            interactions, test_percentage=Config.TEST_PERCENTAGE, random_state=np.random.RandomState(Config.SEEDNO))
+            interactions, test_percentage=Config.TEST_PERCENTAGE, random_state=RandomState(Config.SEEDNO))
         self.output().put((dataset, item_features, train_interactions, test_interactions))
 
     def output(self):
@@ -126,11 +126,11 @@ class WriteRecommendations(Task):
         recommendations = input.get()
         redis_conn = RedisService(host=Config.REDIS_HOST)
         for user in tqdm(recommendations):
-            redis_conn.set(key=user, value=json.dumps(recommendations[user]))
+            redis_conn.set(key=user, value=dumps(recommendations[user]))
 
 
 if __name__ == '__main__':
-    print("System version: {}".format(sys.version))
-    print("LightFM version: {}".format(lightfm.__version__))
-    print("Luigi version: {}".format(luigi.__version__))
+    print("System version: {}".format(sys_version))
+    print("LightFM version: {}".format(lightfm_version))
+    print("Luigi version: {}".format(luigi_version))
     run(local_scheduler=True, main_task_cls=WriteRecommendations)
