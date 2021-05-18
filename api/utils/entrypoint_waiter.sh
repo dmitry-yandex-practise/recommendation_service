@@ -17,11 +17,11 @@ done
 
 echo >&2 "Redis is up"
 
-until curl -s ${ELASTIC_HOST}:${ELASTIC_PORT} >/dev/null; do
-  echo >&2 "ElasticSearch is unavailable - sleeping"
-  sleep 3
-done
+# until curl -s ${ELASTIC_HOST}:${ELASTIC_PORT} >/dev/null; do
+  # echo >&2 "ElasticSearch is unavailable - sleeping"
+  # sleep 3
+# done
 
-echo >&2 "ElasticSearch is up"
+# echo >&2 "ElasticSearch is up"
 
 exec "$@"

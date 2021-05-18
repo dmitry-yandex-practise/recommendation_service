@@ -20,21 +20,6 @@ services:
     ports:
       - 6379:6379
 
-  es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
-    container_name: es01
-    environment:
-      - node.name=es01
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - data01:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
   backend:
     container_name: backend
     build:
@@ -47,7 +32,8 @@ services:
       ELASTIC_HOSTS: c-c9qhas1999s0igg1ago7.rw.mdb.yandexcloud.net
     depends_on:
       - redis
-    restart: on-failure
+      - broker
+    restart: always
 
   nginx:
     container_name: nginx
