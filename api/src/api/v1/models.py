@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from models.film import Film as FilmModel
 from models.genre import Genre as GenreModel
 from models.person import Person as PersonModel
+from models.user import User as UserModel
 
 """
 Здесь находятся модели, которые сериализются в ответ API
@@ -146,3 +147,18 @@ class PaginatedFilmShortList(PaginatedList):
 
 class EventResp(BaseModel):
     success: bool
+
+
+class User(BaseModel):
+    id: UUID
+    must_watch: List[FilmShort] = Field(
+        ..., description='Список рекомендованных фильмов'
+    )
+
+    @classmethod
+    def from_model(cls, user: UserModel):
+        return cls(
+            id=user.id,
+            must_watch=[FilmShort(id=film.id, title=film.title, imdb_rating=film.imdb_rating)
+                        for film in user.must_watch],
+        )
