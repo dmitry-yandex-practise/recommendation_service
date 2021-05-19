@@ -19,8 +19,8 @@ class ElasticStorage:
         """
         Получить список, упорядоченный по полю field
         """
-        resp = await self.elastic.mget(index=index_, body={'sort': {field: {'order': order}}})
-        docs = [doc['_source']['id'] for doc in resp['docs'] if doc['found']][:size]
+        resp = await self.elastic.search(index=index_, body={'sort': {field: {'order': order}}})
+        docs = [doc['_source']['id'] for doc in resp['hits']['hits']][:size]
         return docs
 
 
