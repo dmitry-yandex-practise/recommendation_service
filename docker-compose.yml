@@ -14,11 +14,18 @@ services:
     restart: on-failure
     ports:
       - 8004:8000
+    environment:
+      BROKER_HOST: broker
+      BROKER_PORT: 29092
+      ELASTIC_HOSTS: c-c9qhas1999s0igg1ago7.rw.mdb.yandexcloud.net
   redis:
     image: redis:6.0.9
     container_name: redis
     ports:
       - 6379:6379
+    logging:
+      driver: none
+
 
   backend:
     container_name: backend
@@ -48,3 +55,6 @@ services:
     ports:
       - 0.0.0.0:80:80
     restart: on-failure
+    logging:
+      driver: none
+

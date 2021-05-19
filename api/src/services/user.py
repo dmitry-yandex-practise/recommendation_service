@@ -10,6 +10,7 @@ from cache.redis import RedisCache
 from core.config import RECOMMENDATIONS_PORT, RECOMMENDATIONS_HOST
 from db import redis
 from models.user import User
+from models.film import Film
 from storage.abstract import Storage
 from storage.elastic import get_elastic_storage
 
@@ -32,10 +33,17 @@ class UserService:
         if data:
             return User.parse_raw(data)
 
-        must_watch = requests.get(f'{RECOMMENDATIONS_HOST}:{RECOMMENDATIONS_PORT}/v1/user/{user_id}')
+        must_watch = requests.get(f'http://{RECOMMENDATIONS_HOST}:{RECOMMENDATIONS_PORT}/v1/user/{user_id}')
         must_watch = must_watch.json()
         if must_watch['error']:
             return None
+
+        must_watch = must_watch['result']
+
+        docs = await self.storage.get_by_ids('movies', must_watch)
+        if not docs:
+            return None
+        must_watch = [Film(**doc) for doc in docs]
 
         user = User(id=user_id, must_watch=must_watch)
         await self.cache.put(user.id, user.json())
@@ -48,7 +56,7 @@ def get_user_redis_cache():
 
 
 @lru_cache()
-def get_genre_service(
+def get_user_service(
         cache: Cache = Depends(get_user_redis_cache),
         storage: Storage = Depends(get_elastic_storage),
 ) -> UserService:
