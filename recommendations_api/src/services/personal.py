@@ -25,10 +25,8 @@ class PersonalService:
             recommendations_dict = dict(json.loads(recommendations))
             return list(recommendations_dict['must_watch'])
 
-        try:
-            recommendations = await self.movies_storage.get_ordered_list('movies')
-        except:
-            raise UserNotFound(user_id)
+        recommendations = await self.movies_storage.get_ordered_list('movies')
+
         if not recommendations:
             raise UserNotFound(user_id)
         return recommendations
