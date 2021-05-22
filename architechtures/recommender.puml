@@ -1,0 +1,42 @@
+@startuml
+skinparam componentStyle uml2
+skinparam defaultTextAlignment center
+skinparam backgroundColor #EEEBDC
+skinparam monochrome true
+skinparam roundcorner 10
+
+database clickhouse_ugc [
+Хранилище UGC
+(ClickHouse)
+]
+
+database "Хранилище рекомендаций\n(PostgreSQL)" {
+    folder "User Data" {
+        [User Preferences Table]
+    }
+    folder "Recommendations"{
+        [Generated\nUser-Movies\nRecommendations]
+    }
+}
+
+database movies_db [
+Хранилище фильмов
+(PostgreSQL)
+]
+
+component scheduler [
+Scheduler
+]
+
+component model_training [
+Recommender Engine
+(Python + LightFM)
+]
+
+clickhouse_ugc .. model_training
+movies_db .. model_training
+scheduler .. model_training
+model_training . [User Preferences Table]
+model_training --> [Generated\nUser-Movies\nRecommendations]
+
+@enduml
