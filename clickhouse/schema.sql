@@ -7,9 +7,9 @@ CREATE TABLE default.user_reviews (id UUID,
       ORDER BY id;
 */
 
-CREATE TABLE IF NOT EXISTS default.reviews (
+CREATE TABLE IF NOT EXISTS ugc_data.review_film_work (
     review_id UUID,
-    movie_id UUID,
+    film_work_id UUID,
     user_id UUID,
     score Int8,
     review_date Date
@@ -28,9 +28,9 @@ CREATE TABLE if not exists default.kafka_queue (
     kafka_format = 'JSONEachRow',
     kafka_row_delimiter = '\n';
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS reviews_consumer TO default.reviews
+CREATE MATERIALIZED VIEW IF NOT EXISTS reviews_consumer TO ugc_data.review_film_work
 AS SELECT _key as review_id,
-          movie_id,
+          film_work_id,
           user_id,
           score,
           review_date Date

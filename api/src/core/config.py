@@ -33,5 +33,5 @@ BROKER_PORT = os.getenv('BROKER_PORT', 29092)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Рекоммендательная система
-RECOMMENDATIONS_HOST = os.getenv('RECOMMENDATIONS_HOST', '127.0.0.1')
+RECOMMENDATIONS_HOST = os.getenv('RECOMMENDATIONS_HOST', 'api')
 RECOMMENDATIONS_PORT = os.getenv('RECOMMENDATIONS_PORT', '8000')

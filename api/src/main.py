@@ -7,7 +7,7 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import film, genre, person, event
+from api.v1 import film, genre, person, event, user
 from core import config
 from core.logger import LOGGING
 from db import elastic, redis, kafka
@@ -48,6 +48,7 @@ app.include_router(film.router, prefix='/v1/film', tags=['film'])
 app.include_router(genre.router, prefix='/v1/genre', tags=['genre'])
 app.include_router(person.router, prefix='/v1/person', tags=['person'])
 app.include_router(event.router, prefix='/v1/event', tags=['event'])
+app.include_router(user.router, prefix='/v1/user', tags=['user'])
 
 if __name__ == '__main__':
     uvicorn.run(
