@@ -1,0 +1,23 @@
+version: '3.5'
+
+services:
+  movies-db:
+    container_name: movies-db
+    image: postgres:12.5
+    environment:
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=movies_database
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/001_schema.sql
+      - ./movies-database.sql:/docker-entrypoint-initdb.d/002_movies-database.sql
+        
+  redis:
+    image: redis:6.0.9
+    container_name: redis
+    ports:
+      - 6379:6379
+
+networks:
+  default:
+    external:
+      name: recommendations-backend

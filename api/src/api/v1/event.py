@@ -19,7 +19,7 @@ async def event(event: BaseEvent, event_service: EventService = Depends(get_even
 @router.post('/send_review_event/', response_model=EventResp)
 async def event(event: ReviewEvent, event_service: EventService = Depends(get_event_service)) -> EventResp:
     review_event_key = str(uuid4())
-    json_data = json.dumps({"movie_id": str(event.movie_id),
+    json_data = json.dumps({"film_work_id": str(event.movie_id),
                             "user_id": str(event.user_id),
                             "score": str(event.score),
                             "reviw_date": date.today().strftime("%Y-%m-%d")})
