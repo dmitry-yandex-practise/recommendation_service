@@ -53,9 +53,6 @@ def run_metrics(model, train, test, item_features):
         check_intersections=False
     ).mean()
 
-    print("Precision")
-    print(precision)
-
     auc = auc_score(
         model,
         test_interactions=test,
@@ -65,8 +62,7 @@ def run_metrics(model, train, test, item_features):
         check_intersections=False
     ).mean()
 
-    print("Auc")
-    print(auc)
+    return {"precision": precision, "auc": auc}
 
 
 def recommend_movies(data, train, model):
