@@ -18,6 +18,8 @@ services:
       - ./schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
       - ./init_data.sh:/docker-entrypoint-initdb.d/02_init_data.sh
       - ./pg_review_data_all.csv:/tmp/init_data/pg_review_data_all.csv
+      - ./person_views.csv:/tmp/init_data/person_views.csv
+      - ./film_work_views.csv:/tmp/init_data/film_work_views.csv
     depends_on:
       - zookeeper_ch
 
