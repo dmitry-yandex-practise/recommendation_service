@@ -14,7 +14,7 @@ class ElasticStorage:
     def __init__(self, es: AsyncElasticsearch):
         self.elastic = es
 
-    @backoff.on_exception(backoff.expo, exceptions_list, max_tries=10)
+    @backoff.on_exception(backoff.expo, exceptions_list)
     async def get_ordered_list(self, index_, size=10, field='imdb_rating', order='desc') -> List[Dict]:
         """
         Получить список, упорядоченный по полю field
