@@ -38,7 +38,7 @@ class UserService:
         if must_watch['error']:
             return None
 
-        must_watch = must_watch['result']
+        must_watch = must_watch['result']['must_watch']
 
         docs = await self.storage.get_by_ids('movies', must_watch)
         if not docs:
