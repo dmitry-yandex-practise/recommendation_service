@@ -1,6 +1,7 @@
 from functools import lru_cache
 from typing import Optional
 from uuid import UUID
+from socket import gaierror
 
 from fastapi import Depends
 import requests
@@ -29,9 +30,12 @@ class UserService:
         Возвращает объект пользователя. Он опционален, так как
         пользователь может отсутствовать в базе
         """
-        data = await self.cache.get(user_id)
-        if data:
-            return User.parse_raw(data)
+        try:
+            data = await self.cache.get(user_id)
+            if data:
+                return User.parse_raw(data)
+        except gaierror:
+            pass
 
         must_watch = requests.get(f'http://{RECOMMENDATIONS_HOST}:{RECOMMENDATIONS_PORT}/v1/user/{user_id}')
         must_watch = must_watch.json()
@@ -46,7 +50,11 @@ class UserService:
         must_watch = [Film(**doc) for doc in docs]
 
         user = User(id=user_id, must_watch=must_watch)
-        await self.cache.put(user.id, user.json())
+        try:
+            await self.cache.put(user.id, user.json())
+        except gaierror:
+            pass
+
         return user
 
 

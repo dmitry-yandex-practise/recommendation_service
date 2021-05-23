@@ -4,14 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import status
 
 from api.v1.models import User
-from cache.redis import cache_response
 from services.user import UserService, get_user_service
 
 router = APIRouter()
 
 
 @router.get('/{user_id}', response_model=User)
-@cache_response(ttl=60 * 5, query_args=['user_id'])
 async def user_details(
         user_id: UUID,
         user_service: UserService = Depends(get_user_service)
