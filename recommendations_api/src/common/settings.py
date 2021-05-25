@@ -17,5 +17,3 @@ ELASTIC_USER = os.getenv('ELASTIC_USER', 'admin')
 ELASTIC_PASS = os.getenv('ELASTIC_PASS', 'zaq123321qaz')
 ELASTIC_CA_PATH = os.getenv('ELASTIC_CA_PATH', '/src/CA.pem')
 ELASTIC_HOSTS = os.getenv('ELASTIC_HOSTS', 'localhost').replace("M", "").split(",")
-
-CLICKHOUSE_HOST = os.getenv('CLICKHOUSE_HOST', '127.0.0.1')
