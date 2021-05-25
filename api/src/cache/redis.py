@@ -73,7 +73,7 @@ class RedisCache(Cache):
         self.keybuilder = keybuilder
         self.ttl = ttl
 
-    @backoff.on_exception(backoff.expo, exceptions_list, max_tries=10)
+    @backoff.on_exception(backoff.expo, exceptions_list, max_tries=3)
     async def get(self, obj_id: UUID) -> Optional[str]:
         resp = await self.redis.get(self.keybuilder(obj_id))
         if not resp:
@@ -81,7 +81,7 @@ class RedisCache(Cache):
 
         return resp
 
-    @backoff.on_exception(backoff.expo, exceptions_list, max_tries=10)
+    @backoff.on_exception(backoff.expo, exceptions_list, max_tries=3)
     async def put(self, obj_id: UUID, data: str):
         await self.redis.set(self.keybuilder(obj_id), data, expire=self.ttl)
 

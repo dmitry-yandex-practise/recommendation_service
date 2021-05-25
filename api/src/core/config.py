@@ -26,7 +26,7 @@ APP_HOST = os.getenv('APP_HOST', '0.0.0.0')
 APP_PORT = os.getenv('APP_PORT', '8888')
 
 # Настройки Kafka
-BROKER_HOST = os.getenv('BROKER_HOST', '127.0.0.1')
+BROKER_HOST = os.getenv('BROKER_HOST', 'broker')
 BROKER_PORT = os.getenv('BROKER_PORT', 29092)
 
 # Корень проекта

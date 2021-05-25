@@ -10,7 +10,18 @@ class BaseEvent(BaseModel):
 
 class ReviewEvent(BaseModel):
     topic: str
-    key: UUID
     movie_id: UUID
     user_id: UUID
     score: int
+
+
+class PersonViewEvent(BaseModel):
+    topic: str
+    person_id: UUID
+    user_id: UUID
+
+
+class FilmViewEvent(BaseModel):
+    topic: str
+    movie_id: UUID
+    user_id: UUID
