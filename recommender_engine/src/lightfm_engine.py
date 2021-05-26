@@ -76,5 +76,5 @@ def recommend_movies(data, train, model):
         scores = model.predict(user_id_map[user], arange(n_items), num_threads=Config.NO_THREADS)
 
         top_items = {count: item_id_map_inv[value] for count, value in enumerate(argsort(-scores)[0:Config.K])}
-        recommendations[user] = top_items
+        recommendations[user] = {"must_watch": list(top_items.values())}
     return recommendations

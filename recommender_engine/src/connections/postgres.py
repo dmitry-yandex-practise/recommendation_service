@@ -15,7 +15,11 @@ class PostgresConnCtxManager:
         self.cursor_factory = cursor_factory
 
     def __enter__(self):
-        self.conn = psycopg2.connect(database = self.database, user = self.user, password = self.password,host= self.host,port=5432)
+        self.conn = psycopg2.connect(database=self.database,
+                                     user=self.user,
+                                     password=self.password,
+                                     host=self.host,
+                                     port=5432)
         self.cur = self.conn.cursor(cursor_factory=self.cursor_factory)
         return self.cur
 

@@ -12,3 +12,6 @@ class RedisService:
 
     def set(self, key: str, value: str, expire: Optional[int] = None):
         self.redis.set(key, value, ex=expire)
+
+    def ping(self):
+        return self.redis.ping()
