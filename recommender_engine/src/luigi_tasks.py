@@ -1,7 +1,15 @@
+import datetime
+import os
 from json import dumps
 from logging import getLogger
 from sys import version as sys_version
-
+from luigi.contrib.postgres import PostgresTarget
+from luigi.contrib.redis_store import RedisTarget
+import luigi
+import json
+from notifications.telegram import LuigiTelegramNotification
+from luigi import Parameter
+from luigi.notifications import TestNotificationsTask
 from lightfm import __version__ as lightfm_version
 from lightfm.cross_validation import random_train_test_split
 from luigi import Task, run, Target, build
@@ -9,7 +17,7 @@ from luigi import __version__ as luigi_version
 from numpy.random import RandomState
 from pandas import DataFrame
 from tqdm import tqdm
-
+from luigi.local_target import LocalTarget
 from connections.postgres import PostgresConnCtxManager
 from core.config import Config
 from lightfm_engine import create_dataset, create_model, run_metrics, recommend_movies
@@ -36,6 +44,7 @@ class MemoryTarget(Target):
 
 
 class CollectData(Task):
+
     def run(self):
         logger = getLogger("luigi-interface")
         logger.info("Creating connection object")
@@ -53,6 +62,7 @@ class CollectData(Task):
 
 
 class PrepareData(Task):
+
     def requires(self):
         return CollectData()
 
@@ -86,6 +96,7 @@ class PrepareData(Task):
 
 
 class CreateModel(Task):
+
     def requires(self):
         return PrepareData()
 
@@ -117,6 +128,8 @@ class CreateModel(Task):
 
 
 class CreateRecommendations(Task):
+    date = luigi.DateParameter(default=datetime.date.today())
+
     def requires(self):
         return CreateModel()
 
@@ -127,21 +140,28 @@ class CreateRecommendations(Task):
         logger.info("Generating recommendations")
         recommendations = recommend_movies(dataset, train_interactions, model)
         logger.info("Backing up recommendations on disk")
-        # TODO Local Target
-        self.output().put(recommendations)
+        directory = './generated/recommendations/'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        with self.output().open('w') as f:
+            json.dump(recommendations, f)
 
     def output(self):
-        return MemoryTarget(self.__class__.__name__)
+        return LocalTarget(path='./generated/recommendations/{}.json'.format(self.date))
 
 
 class WriteRecommendations(Task):
+    redis_db = luigi.Parameter(
+        default="default",
+        description="Database name in Redis which data should be written to. Not implemented for now")
+
     def requires(self):
         return CreateRecommendations()
 
     def run(self):
         logger = getLogger("luigi-interface")
-        input = yield CreateRecommendations()
-        recommendations = input.get()
+        with self.input().open('r') as in_file:
+            recommendations = json.load(in_file)
         logger.info("Connecting to Recommendations Storage")
         redis_conn = RedisService(host=Config.REDIS_HOST)
         logger.info("Writing new recommendations")
@@ -149,20 +169,37 @@ class WriteRecommendations(Task):
             redis_conn.set(key=user, value=dumps(recommendations[user]))
 
     def complete(self):
-        # TODO Check date of file input and return if it is valid
-        return False
+        try:
+            with self.input().open('r') as in_file:
+                recommendations = json.load(in_file)
+        except IOError:
+            return False
+        redis_conn = RedisService(host=Config.REDIS_HOST)
+        for count, user_id in enumerate(recommendations):
+            if count >= 10:
+                break
+            recommendation = recommendations[user_id]
+            redis_rec = json.loads(redis_conn.get(user_id))
+            if recommendation != redis_rec:
+                return False
+        return True
 
 
-if __name__ == '__main__':
+def trigger_luigi_tasks():
     print("System version: {}".format(sys_version))
     print("LightFM version: {}".format(lightfm_version))
     print("Luigi version: {}".format(luigi_version))
 
-    build(tasks=[
-        CollectData(),
-        PrepareData(),
-        CreateModel(),
-        CreateRecommendations(),
-        WriteRecommendations(),
-    ], local_scheduler=True)
-    # TODO Retries
+    with LuigiTelegramNotification(Config.TELEGRAM_BOT_TOKEN, Config.TELEGRAM_CHAT, failed_only=True):
+        run(main_task_cls=WriteRecommendations,
+            worker_scheduler_factory=None,
+            local_scheduler=False,
+            detailed_summary=False
+            )
+
+
+# TODO Notify if build fails
+# TODO Create Commentaries
+
+if __name__ == '__main__':
+    trigger_luigi_tasks()

@@ -1,0 +1,32 @@
+version: '3.5'
+
+services:
+  movies-db:
+    container_name: movies-db
+    image: postgres:12.5
+    environment:
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=movies_database
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/001_schema.sql
+      - ./movies-database.sql:/docker-entrypoint-initdb.d/002_movies-database.sql
+    ports:
+      - 5432:5432
+        
+  redis:
+    image: redis:6.0.9
+    container_name: redis
+    ports:
+      - 6379:6379
+  engine:
+    build: .
+    environment:
+      - PG_HOST=movies-db
+      - PG_DATABASE=movies_database
+      - PG_USER=postgres
+      - PG_PASSWORD=pass
+      - REDIS_HOST=redis
+      - TELEGRAM_BOT_TOKEN=TELEGRAM_BOT_TOKEN
+      - TELEGRAM_CHAT=TELEGRAM_CHAT
+    ports:
+      - 8082:8082
