@@ -11,6 +11,9 @@ class Config:
     PG_PASSWORD: str = getenv('PG_PASSWORD', "pass")
     # Redis connection values
     REDIS_HOST: str = getenv('REDIS_HOST', "localhost")
+    # Telegram notifications credentials
+    TELEGRAM_BOT_TOKEN: str = getenv('TELEGRAM_BOT_TOKEN', "TELEGRAM_BOT_TOKEN")
+    TELEGRAM_CHAT: str = getenv('TELEGRAM_CHAT', "TELEGRAM_CHAT")
     # Currently user features are disabled
     USER_FEATURES: bool = False
     # default number of recommendations

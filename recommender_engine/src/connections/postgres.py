@@ -8,14 +8,14 @@ class PostgresConnCtxManager:
     """
 
     def __init__(self, host: str, database: str, user: str, password: str, cursor_factory=RealDictCursor):
-        self.dsn = {"host": host,
-                    "database": database,
-                    "user": user,
-                    "password": password}
+        self.host = host
+        self.database = database
+        self.user = user
+        self.password = password
         self.cursor_factory = cursor_factory
 
     def __enter__(self):
-        self.conn = psycopg2.connect(**self.dsn)
+        self.conn = psycopg2.connect(database = self.database, user = self.user, password = self.password,host= self.host,port=5432)
         self.cur = self.conn.cursor(cursor_factory=self.cursor_factory)
         return self.cur
 

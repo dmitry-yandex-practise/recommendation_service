@@ -166,7 +166,7 @@ class WriteRecommendations(Task):
         redis_conn = RedisService(host=Config.REDIS_HOST)
         logger.info("Writing new recommendations")
         for user in tqdm(recommendations):
-            redis_conn.set(key=user, value=dumps(recommendations[user]))
+            redis_conn.set(key=user, value=dumps({"must_watch": recommendations[user]}))
 
     def complete(self):
         try:
