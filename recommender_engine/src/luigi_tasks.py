@@ -1,6 +1,5 @@
 import datetime
 import json
-
 from logging import getLogger
 from os import makedirs
 from os.path import exists
@@ -237,8 +236,6 @@ def trigger_luigi_tasks():
             detailed_summary=False
             )
 
-
-# TODO Create Top K Movies Task
 
 if __name__ == '__main__':
     trigger_luigi_tasks()

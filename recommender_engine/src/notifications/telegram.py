@@ -1,10 +1,10 @@
-import time
 import logging
+import time
 import traceback
 
+import telepot
 from luigi import Task
 from luigi.event import Event
-import telepot
 
 logger = logging.getLogger('luigi-interface')
 
