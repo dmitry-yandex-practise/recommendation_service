@@ -9,6 +9,8 @@ class Config:
     PG_DATABASE: str = getenv('PG_DATABASE', "movies_database")
     PG_USER: str = getenv('PG_USER', "postgres")
     PG_PASSWORD: str = getenv('PG_PASSWORD', "pass")
+    # ClickHouse
+    CH_HOST: str = getenv('CH_HOST', "clickhouse-node1")
     # Redis connection values
     REDIS_HOST: str = getenv('REDIS_HOST', "localhost")
     # Telegram notifications credentials
@@ -25,7 +27,7 @@ class Config:
     # no of latent factors
     NO_COMPONENTS = 20
     # no of epochs to fit model
-    NO_EPOCHS = 20
+    NO_EPOCHS = 10
     # no of threads to fit model
     NO_THREADS = 8
     # regularisation for both user and item features

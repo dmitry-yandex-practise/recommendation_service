@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+
+  api:
+    build:
+      ./recommendations_api/
+    command: "python3 src/main.py"
+    restart: on-failure
+    ports:
+      - 8004:8000
+    environment:
+      RECOMMENDATIONS_HOST: redis
+      ELASTIC_HOSTS: c-c9qhas1999s0igg1ago7.rw.mdb.yandexcloud.net
+
+  backend:
+    container_name: backend
+    build:
+      context: api
+    ports:
+      - 8888:8888
+    environment:
+      BROKER_HOST: broker
+      BROKER_PORT: 29092
+      ELASTIC_HOSTS: c-c9qhas1999s0igg1ago7.rw.mdb.yandexcloud.net
+    restart: always
+
+  recommender_engine:
+    container_name: recommender_engine
+    build:
+      context: recommender_engine
+    environment:
+      - PG_HOST=movies-db
+      - PG_DATABASE=movies_database
+      - PG_USER=postgres
+      - PG_PASSWORD=pass
+      - REDIS_HOST=redis
+      - TELEGRAM_BOT_TOKEN=TELEGRAM_BOT_TOKEN
+      - TELEGRAM_CHAT=TELEGRAM_CHAT
+    ports:
+      - 8889:8082
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./nginx/
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/templates/:ro
+    environment:
+      - API_HOST=http://backend
+      - API_PORT=8888
+    ports:
+      - 0.0.0.0:80:80
+    restart: on-failure
+
+networks:
+  default:
+    external:
+      name: recommendations-backend
