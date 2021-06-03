@@ -26,6 +26,21 @@ services:
     logging:
       driver: none
 
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    container_name: es01
+    environment:
+      - node.name=es01
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
 
   backend:
     container_name: backend
@@ -57,4 +72,3 @@ services:
     restart: on-failure
     logging:
       driver: none
-
