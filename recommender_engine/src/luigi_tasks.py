@@ -14,12 +14,14 @@ from pandas import DataFrame
 from tqdm import tqdm
 
 from connections.postgres import PostgresConnCtxManager
+from connections.clickhouse import ClickHouseConnCtxManager
 from core.config import Config
 from lightfm_engine import create_dataset, create_model, run_metrics, recommend_movies
 from movies_data.pg_movies import retrieve_movies_data
 from notifications.telegram import LuigiTelegramNotification
 from recommendations.redis_db import RedisService
 from ugc.pg_ugc import retrieve_ratings
+from ugc.ch_ugc import retrieve_ratings as ch_retrieve_ratings
 from user_data.pg_user_data import retrieve_users_data
 
 
@@ -55,10 +57,12 @@ class CollectData(Task):
         logger = getLogger("luigi-interface")
         logger.info("Creating connection object")
         conn = PostgresConnCtxManager(Config.PG_HOST, Config.PG_DATABASE, Config.PG_USER, Config.PG_PASSWORD)
+        ch_conn = ClickHouseConnCtxManager(Config.CH_HOST)
         logger.info("Starting data retrieval")
         movies = retrieve_movies_data(conn_ctx_manager=conn)  # List of RealDict Objects
         users = retrieve_users_data(conn_ctx_manager=conn)  # List of RealDict Objects
-        ratings = retrieve_ratings(conn_ctx_manager=conn)  # List of RealDict Objects
+        # ratings = retrieve_ratings(conn_ctx_manager=conn)  # List of RealDict Objects
+        ratings = ch_retrieve_ratings(conn_ctx_manager=ch_conn)
         logger.info(f"Collected data of {len(movies)} movies, {len(users)} users, {len(ratings)} ratings")
         f = self.output()
         f.put((movies, users, ratings))

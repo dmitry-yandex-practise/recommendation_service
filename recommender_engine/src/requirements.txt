@@ -8,3 +8,4 @@ clickhouse-driver==0.2.0
 redis==3.5.3
 telepot==12.7
 schedule==1.1.0
+clickhouse-driver==0.2.0
